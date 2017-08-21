@@ -825,3 +825,64 @@ export class InvalidURL implements Predicate<any> {
     return { matched: true, paths: [this.path] };
   }
 }
+
+function isContainerNameMissing(components: any[], containerName: string): RuleMatchedAt {
+
+  for (let component of components) {
+    // console.log(`checking for container ${containerName} in component ${util.inspect(component, false, 100, true)}`);
+    const c = _.find(component.containers, { name: containerName });
+    if (c) {
+      return { matched: false };
+    }
+  }
+
+  return { matched: true, paths: ["components"] };
+}
+
+function collapseMatches(matches: RuleMatchedAt[]): RuleMatchedAt {
+  return _.reduce(
+      matches,
+      (match, acc) => (
+          {
+            matched: match.matched || acc.matched,
+            paths: _.concat(match.paths || [], acc.paths || []),
+          }
+      ),
+      { matched: false, paths: [] as string[] },
+  );
+}
+
+export class ContainerVolumesFromMissing implements Predicate<any> {
+  public static fromJson(): ContainerVolumesFromMissing {
+    return new ContainerVolumesFromMissing();
+  }
+
+  public test(root: any): RuleMatchedAt {
+    if (_.isEmpty(root.components)) {
+      return { matched: false };
+
+    }
+    const matches: RuleMatchedAt[] = _.flatMap(root.components, (component, componentIndex) => {
+      if (_.isEmpty(component.containers)) {
+        return [{ matched: false }];
+      }
+      return _.flatMap(component.containers, (container, containerIndex) => {
+
+        return _.map(container.volumes_from, (name: string, nameIndex) => {
+          if (container.name === name || isContainerNameMissing(root.components, name).matched) {
+            return {
+              matched: true,
+              paths: [`components.${componentIndex}.containers.${containerIndex}.volumes_from.${nameIndex}`],
+            };
+          }
+
+          return { matched: false };
+        });
+      });
+    });
+
+    return collapseMatches(matches);
+
+  }
+
+}

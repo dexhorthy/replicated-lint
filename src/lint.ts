@@ -126,6 +126,8 @@ export interface Test {
   };
   WhenExpressionConfigInvalid?: {};
   EventSubscriptionContainerMissing?: {};
+  ContainerVolumesFromMissing: {};
+
   MoreThan?: {
     limit: number;
     values: string[];

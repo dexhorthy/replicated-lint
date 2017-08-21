@@ -418,7 +418,7 @@ components:
     containers:
     - source: public
       name: redis
-      tag: 3.2.1
+      version: 3.2.1
       content_trust:
         public_key_fingerprint: flksdjflkds
     `,
@@ -433,9 +433,70 @@ components:
     containers:
     - source: public
       name: redis
-      tag: 3.2.1
+      version: 3.2.1
       content_trust:
         public_key_fingerprint: cb:69:19:cd:76:1f:17:54:92:a4:fc:a9:6f:a5:57:72
+    `,
+      },
+    ],
+  },
+};
+
+export const containerVolumesFromExists: YAMLRule = {
+  name: "prop-component-container-volumesfrom-exists",
+  type: "error",
+  message: "A container's volumes_from must reference an existing container's `name` field",
+  test: { ContainerVolumesFromMissing: {}},
+  examples: {
+    wrong: [
+      {
+        description: "volumes_from references own container",
+        yaml: `
+---
+components:
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: redis
+      version: 3.2.1
+      volumes_from:
+        - redis
+    `,
+      },
+      {
+        description: "volumes_from references non-existing container",
+        yaml: `
+---
+components:
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: redis
+      version: 3.2.1
+      volumes_from:
+        - mongo
+    `,
+      },
+    ],
+    right: [
+      {
+        description: "valid volumes_from reference",
+        yaml: `
+components:
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: redis
+      version: 3.2.1
+      volumes_from:
+        - mongo
+    - source: public
+      image_name: mongo
+      name: mongo
+      version: 3.2.1
     `,
       },
     ],
@@ -448,4 +509,5 @@ export const all: YAMLRule[] = [
   containerVolumeModes,
   volumeContainerPathAbsoulte,
   containerContentTrustValid,
+  containerVolumesFromExists,
 ];
