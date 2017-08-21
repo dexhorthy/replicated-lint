@@ -2,9 +2,7 @@ import { YAMLRule } from "../lint";
 
 export const apiVersion: YAMLRule = {
   name: "prop-replicated-api-version-present",
-  type: "error",
-  message: "`replicated_api_version` must be present and be a valid Semver specification",
-  test: { Semver: { path: "replicated_api_version", required: true } },
+  type: "error", message: "`replicated_api_version` must be present and be a valid Semver specification", test: { Semver: { path: "replicated_api_version", required: true } },
   examples: {
     wrong: [
       {
@@ -130,8 +128,53 @@ properties:
   },
 };
 
+export const propertiesLogoURLValid: YAMLRule = {
+  name: "prop-properties-logourl-valid",
+  type: "error",
+  message: "Logo URL must be a valid http or https URL",
+  test: {
+    And: {
+      preds: [
+        { Truthy: { path: "properties.logo_url" } },
+        { InvalidURL: { path: "properties.logo_url" } },
+      ],
+    },
+  },
+  examples: {
+    wrong: [
+      {
+        description: "protocol not in [http, https]",
+        yaml: `
+---
+properties:
+  logo_url: yo://mylogo.com/logo.png
+      `,
+      },
+      {
+        description: "invalid url",
+        yaml: `
+---
+properties:
+  logo_url: kfbr392
+      `,
+      },
+    ],
+    right: [
+      {
+        description: "valid url",
+        yaml: `
+---
+properties:
+  logo_url: http://x.y+a.com:3000/b/c
+      `,
+      },
+    ],
+  },
+};
+
 export const all: YAMLRule[] = [
   apiVersion,
   imageContentTrustValid,
   propertiesShellAlias,
+  propertiesLogoURLValid,
 ];

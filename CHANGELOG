@@ -83,3 +83,5 @@
     * Ensure `admin_commands.*.alias` is a valid shell alias
     * Ensure `properties.shell_alias` is a valid shell alias
 
+0.6.18 / 2017-08-21
+    * Ensure `properties.logo_url` is a http or https url

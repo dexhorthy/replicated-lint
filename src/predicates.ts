@@ -1,5 +1,6 @@
 import * as _ from "lodash";
 import * as semver from "semver";
+import * as urlParse from "url-parse";
 import { Predicate, RuleMatchedAt } from "./lint";
 import { FoundValue, TraverseSearcher, ValueSearcher, ValueTraverser } from "./traverse";
 import { ConfigOption, ConfigSection } from "./replicated";
@@ -793,6 +794,32 @@ export class NotBoolString implements Predicate<any> {
       if (/^(true|false|1|0|{{repl.*)$/.test(val)) {
         return { matched: false };
       }
+    }
+
+    return { matched: true, paths: [this.path] };
+  }
+}
+
+/**
+ * Invalid URL matches when a url is not valid or does not use
+ * `http` or `https` for the scheme
+ */
+export class InvalidURL implements Predicate<any> {
+  public static fromJson(self: any): InvalidURL {
+    return new InvalidURL(self.path);
+  }
+
+  constructor(
+      private readonly path: string,
+  ) {
+  }
+
+  public test(root): RuleMatchedAt {
+    const val = _.get(root, this.path);
+    const parsed = urlParse(val);
+    if (parsed.protocol === "http:" || parsed.protocol === "https:") {
+      return { matched: false };
+
     }
 
     return { matched: true, paths: [this.path] };

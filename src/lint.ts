@@ -63,6 +63,9 @@ export interface Test {
   NotBoolString?: {
     path: string;
   };
+  InvalidURL?: {
+    path: string;
+  };
   Eq?: {
     path: string;
     value: any;
