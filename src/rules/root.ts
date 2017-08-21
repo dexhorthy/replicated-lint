@@ -86,7 +86,52 @@ images:
   },
 };
 
+export const propertiesShellAlias: YAMLRule = {
+  name: "prop-properties-shellalias-valid",
+  type: "error",
+  message: "`properties.shell_alias` must be a valid shell alias",
+  test: {
+    And: {
+      preds: [
+        { Truthy: { path: "properties.shell_alias" } },
+        { NotMatch: { path: "properties.shell_alias", pattern: "^[a-zA-Z0-9_\\-]*$" } },
+      ],
+    },
+  },
+  examples: {
+    wrong: [
+      {
+        description: "alias contains invalid character `&`",
+        yaml: `
+---
+properties:
+  shell_alias: exec&echo
+      `,
+      },
+      {
+        description: "admin command contains invalid character `*`",
+        yaml: `
+---
+properties:
+  shell_alias: exec**echo
+      `,
+      },
+    ],
+    right: [
+      {
+        description: "valid alias",
+        yaml: `
+---
+properties:
+  shell_alias: do_a-replicated_thing---plz
+      `,
+      },
+    ],
+  },
+};
+
 export const all: YAMLRule[] = [
   apiVersion,
   imageContentTrustValid,
+  propertiesShellAlias,
 ];
