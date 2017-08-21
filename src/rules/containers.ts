@@ -503,6 +503,77 @@ components:
   },
 };
 
+export const containerNamesUnique: YAMLRule = {
+  name: "prop-component-container-names-unique",
+  type: "error",
+  message: "A component's container's must have unique `name` entries",
+  test: { ContainerNamesNotUnique: {}},
+  examples: {
+    wrong: [
+      {
+        description: "duplicated names in single component",
+        yaml: `
+---
+components:
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: db
+      version: 3.2.1
+    - source: public
+      image_name: mongo
+      name: db
+      version: latest
+    `,
+      },
+      {
+        description: "duplicated names across components",
+        yaml: `
+---
+components:
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: db
+      version: 3.2.1
+  - name: MoreDB
+    containers:
+    - source: public
+      image_name: mongo
+      name: db
+      version: latest
+    `,
+      },
+    ],
+    right: [
+      {
+        description: "no duplicated names",
+        yaml: `
+components:
+  - name: UI
+    containers:
+    - source: public
+      image_name: nginx
+      name: ui
+      version: 1.10.2
+  - name: DB
+    containers:
+    - source: public
+      image_name: redis
+      name: redis
+      version: 3.2.1
+    - source: public
+      image_name: mongo
+      name: mongo
+      version: 3.2
+    `,
+      },
+    ],
+  },
+};
+
 export const all: YAMLRule[] = [
   notClusteredIfNamedContainer,
   eventSubscriptionContainerExists,
@@ -510,4 +581,5 @@ export const all: YAMLRule[] = [
   volumeContainerPathAbsoulte,
   containerContentTrustValid,
   containerVolumesFromExists,
+  containerNamesUnique,
 ];

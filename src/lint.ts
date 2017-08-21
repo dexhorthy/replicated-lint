@@ -112,8 +112,6 @@ export interface Test {
     path: string;
     value: number;
   };
-  ConfigOptionExists?: {};
-  ConfigOptionIsCircular?: {};
   FalseyIfPresent?: {
     path: string;
     field: string;
@@ -124,9 +122,13 @@ export interface Test {
   MonitorContainerMissing?: {
     monitorPath: string;
   };
-  WhenExpressionConfigInvalid?: {};
+
+  ContainerNamesNotUnique?: {};
+  ConfigOptionExists?: {};
+  ConfigOptionIsCircular?: {};
+  ContainerVolumesFromMissing?: {};
   EventSubscriptionContainerMissing?: {};
-  ContainerVolumesFromMissing: {};
+  WhenExpressionConfigInvalid?: {};
 
   MoreThan?: {
     limit: number;

@@ -3,7 +3,7 @@ import * as semver from "semver";
 import * as urlParse from "url-parse";
 import { Predicate, RuleMatchedAt } from "./lint";
 import { FoundValue, TraverseSearcher, ValueSearcher, ValueTraverser } from "./traverse";
-import { ConfigOption, ConfigSection } from "./replicated";
+import { Component, ConfigOption, ConfigSection, Container } from "./replicated";
 import { Registry } from "./engine";
 
 export class And<T> implements Predicate<T> {
@@ -883,6 +883,48 @@ export class ContainerVolumesFromMissing implements Predicate<any> {
 
     return collapseMatches(matches);
 
+  }
+
+}
+
+export class ContainerNamesNotUnique implements Predicate<any> {
+  public static fromJson(): ContainerNamesNotUnique {
+    return new ContainerNamesNotUnique();
+  }
+
+  public test(root: any): RuleMatchedAt {
+    if (_.isEmpty(root.components)) {
+      return { matched: false };
+    }
+
+    const seenNames = {} as any;
+    const matches = _.flatMap(root.components, (component: Component, componentIndex) => {
+      if (_.isEmpty(component.containers)) {
+        return [{ matched: false }];
+      }
+
+      return _.map(component.containers!, (container: Container, containerIndex) => {
+        if (_.isEmpty(container.name)) {
+
+          return { matched: false };
+        }
+
+        if (_.isUndefined(seenNames[container.name])) {
+          seenNames[container.name] = `components.${componentIndex}.containers.${containerIndex}.name`;
+          return { matched: false };
+        }
+
+        return {
+          matched: true,
+          paths: [
+            `components.${componentIndex}.containers.${containerIndex}.name`,
+            seenNames[container.name],
+          ],
+        };
+      });
+    });
+
+    return collapseMatches(matches);
   }
 
 }

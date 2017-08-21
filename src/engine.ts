@@ -5,7 +5,9 @@ import {
   And,
   AnyOf,
   ConfigOptionExists,
-  ConfigOptionIsCircular, ContainerVolumesFromMissing,
+  ConfigOptionIsCircular,
+  ContainerNamesNotUnique,
+  ContainerVolumesFromMissing,
   Dot,
   Eq,
   EventSubscriptionContainerMissing,
@@ -77,6 +79,7 @@ const defaultPredicates: PredicateRegistry = {
   NotBoolString,
   InvalidURL,
   ContainerVolumesFromMissing,
+  ContainerNamesNotUnique,
 };
 
 export class MutableRegistry implements Registry {
